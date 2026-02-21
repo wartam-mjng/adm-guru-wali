@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guru Wali Pro - Administrasi Terpadu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .nav-btn { transition: all 0.2s ease; border-radius: 12px; margin-bottom: 4px; color: #cbd5e1; }
+        .nav-btn:hover { background-color: #334155; color: white; }
+        .nav-btn.active { 
+            background-color: #2563eb !important; 
+            color: white !important; 
+        }
+
+        /* Sidebar Toggle Styles */
+        #sidebar { 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            width: 20rem; 
+            min-width: 20rem;
+        }
+        #sidebar.collapsed { 
+            width: 0; 
+            min-width: 0;
+            transform: translateX(-100%); 
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        main {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+            .tab-content.active { display: block !important; padding: 0 !important; }
+            .shadow-sm { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+            main { overflow: visible !important; height: auto !important; }
+            #sidebar { display: none !important; }
+        }
+
+        .edit-input { width: 100%; border: none; background: transparent; outline: none; resize: none; padding: 4px; display: block; }
+        .edit-input:focus { background-color: #f8fafc; border-radius: 4px; box-shadow: inset 0 0 0 1px #e2e8f0; }
+        
+        .fab-container { position: fixed; bottom: 2rem; right: 2rem; display: flex; flex-direction: column; gap: 0.75rem; z-index: 50; }
+        .fab { width: 3.5rem; height: 3.5rem; border-radius: 9999px; display: flex; items-center; justify-content: center; color: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .fab:hover { transform: scale(1.1); }
+        
+        table th, table td { border: 1px solid #cbd5e1; }
+    </style>
+</head>
+<body class="bg-[#1e293b] text-slate-200 overflow-hidden text-sm">
+
+    <div class="flex h-screen w-full overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-[#1e293b] text-white flex-shrink-0 flex flex-col z-30 no-print border-r border-slate-700/50">
+            <div class="p-8 text-center border-b border-slate-700/50 flex flex-col items-center">
+                <h1 class="font-black text-2xl tracking-tighter leading-tight uppercase whitespace-nowrap">ADMINISTRASI GURU WALI</h1>
+            </div>
+            
+            <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                <button onclick="showTab('identitas')" class="nav-btn w-full flex items-center gap-4 p-4 text-left active">
+                    <span class="font-semibold text-base whitespace-nowrap">Isi Identitas</span>
+                </button>
+                <button onclick="showTab('program-kerja')" class="nav-btn w-full flex items-center gap-4 p-4 text-left">
+                    <span class="font-semibold text-base whitespace-nowrap">Program Kerja</span>
+                </button>
+                <!-- Menu Jadwal Kegiatan Dihapus -->
+                <button onclick="showTab('data-murid')" class="nav-btn w-full flex items-center gap-4 p-4 text-left">
+                    <span class="font-semibold text-base whitespace-nowrap">Data Murid</span>
+                </button>
+                <button onclick="showTab('profil-murid')" class="nav-btn w-full flex items-center gap-4 p-4 text-left">
+                    <span class="font-semibold text-base whitespace-nowrap">Profil Murid</span>
+                </button>
+                <button onclick="showTab('jurnal')" class="nav-btn w-full flex items-center gap-4 p-4 text-left">
+                    <span class="font-semibold text-base whitespace-nowrap">Jurnal Pertemuan</span>
+                </button>
+                <button onclick="showTab('laporan')" class="nav-btn w-full flex items-center gap-4 p-4 text-left">
+                    <span class="font-semibold text-base whitespace-nowrap">Laporan Perkembangan</span>
+                </button>
+                <button onclick="showTab('pengembangan-diri')" class="nav-btn w-full flex items-center gap-4 p-4 text-left">
+                    <span class="font-semibold text-base whitespace-nowrap">Rencana Pengembangan Diri</span>
+                </button>
+            </nav>
+
+            <div class="p-4 bg-slate-900/30">
+                <button onclick="showTab('settings')" class="w-full text-slate-500 hover:text-white text-[10px] uppercase tracking-widest py-2 transition">
+                    Konfigurasi Cloud
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-100 text-slate-900 relative">
+            
+            <!-- Top bar with Toggle -->
+            <header class="h-16 border-b border-slate-200 bg-white flex items-center px-4 no-print flex-shrink-0 shadow-sm z-20">
+                <button onclick="toggleSidebar()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-all border border-slate-200 flex items-center justify-center" title="Buka/Tutup Menu">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div class="ml-4 font-bold text-slate-500 uppercase tracking-widest text-[10px] hidden sm:block">
+                    Dashboard Administrasi Guru Wali
+                </div>
+            </header>
+
+            <div class="fab-container no-print">
+                <button onclick="syncToCloud()" class="fab bg-purple-600" title="Upload ke Cloud">
+                    <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+                </button>
+                <button onclick="downloadBackup()" class="fab bg-emerald-500" title="Download Data">
+                    <i data-lucide="download" class="w-6 h-6"></i>
+                </button>
+                <button onclick="window.print()" class="fab bg-blue-600" title="Cetak Halaman">
+                    <i data-lucide="printer" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth" id="contentScroll">
+                
+                <!-- 1. Isi Identitas -->
+                <section id="identitas" class="tab-content active max-w-5xl mx-auto">
+                    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-8 md:p-16 min-h-[600px]">
+                        <div class="text-center mb-12">
+                            <h2 class="text-3xl font-bold text-slate-800 uppercase tracking-tight">IDENTITAS GURU WALI</h2>
+                        </div>
+                        <div class="mb-12">
+                            <p class="text-slate-500 text-base">Ini adalah halaman untuk mengisi dan melihat identitas guru wali. Silakan lengkapi form di bawah ini.</p>
+                        </div>
+                        <div class="space-y-6 max-w-4xl">
+                            <div class="flex flex-col md:flex-row md:items-center gap-4">
+                                <label class="w-full md:w-64 text-base font-medium text-slate-700">Nama Lengkap</label>
+                                <input type="text" id="namaGuru" class="flex-1 p-3 border border-slate-300 rounded-md outline-none focus:border-blue-500 transition" oninput="saveData('guru_name', this.value)">
+                            </div>
+                            <div class="flex flex-col md:flex-row md:items-center gap-4">
+                                <label class="w-full md:w-64 text-base font-medium text-slate-700">NIP</label>
+                                <input type="text" id="nipGuru" class="flex-1 p-3 border border-slate-300 rounded-md outline-none focus:border-blue-500 transition" oninput="saveData('guru_nip', this.value)">
+                            </div>
+                            <div class="flex flex-col md:flex-row md:items-center gap-4">
+                                <label class="w-full md:w-64 text-base font-medium text-slate-700">Wali Kelas</label>
+                                <input type="text" id="kelasGuru" class="flex-1 p-3 border border-slate-300 rounded-md outline-none focus:border-blue-500 transition" oninput="saveData('guru_kelas', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Program Kerja -->
+                <section id="program-kerja" class="tab-content max-w-5xl mx-auto">
+                    <div class="bg-white rounded-lg border border-slate-200 p-8 md:p-12 shadow-sm min-h-[1000px]">
+                        <h3 class="text-3xl font-bold mb-8 text-center uppercase tracking-tight">PROGRAM KERJA</h3>
+                        <div class="mb-8"><p class="text-slate-600 text-sm leading-relaxed">Program kerja Guru Wali mencakup empat pilar utama sesuai dengan tugas pokoknya:</p></div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-[12px] leading-relaxed">
+                                <thead class="bg-slate-50 text-slate-600 font-bold">
+                                    <tr>
+                                        <th class="p-3 w-12 text-center">No.</th>
+                                        <th class="p-3 w-1/4 text-left">Pilar Program</th>
+                                        <th class="p-3 w-1/3 text-left">Bentuk Kegiatan</th>
+                                        <th class="p-3 text-left">Indikator Keberhasilan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="progTable" class="text-slate-700"></tbody>
+                            </table>
+                        </div>
+                        <div class="mt-16 flex justify-end">
+                            <div class="text-center w-64">
+                                <p class="mb-20 text-sm">Mengetahui,<br><strong>Guru Wali</strong></p>
+                                <div class="border-b border-black w-full mb-1"></div>
+                                <p class="text-[10px] text-slate-400">(Tanda Tangan & Nama Terang)</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section Jadwal Kegiatan Dihapus -->
+
+                <section id="data-murid" class="tab-content max-w-5xl mx-auto">
+                    <div class="bg-white rounded-lg border border-slate-200 p-10 shadow-sm">
+                        <div class="flex justify-between items-center mb-8 no-print">
+                            <h3 class="text-xl font-bold uppercase">Daftar Murid</h3>
+                            <button onclick="addStudentRow()" class="bg-blue-600 text-white px-4 py-2 rounded text-xs font-bold hover:bg-blue-700 transition">+ Murid Baru</button>
+                        </div>
+                        <table class="w-full border-collapse border border-slate-200">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th class="border p-3 w-12 text-[10px] uppercase">No</th>
+                                    <th class="border p-3 text-left text-[10px] uppercase">Nama Murid</th>
+                                    <th class="border p-3 text-left text-[10px] uppercase">NIS / NISN</th>
+                                    <th class="border p-3 w-12 no-print"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentTable"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="settings" class="tab-content max-w-3xl mx-auto">
+                    <div class="bg-white rounded-lg border border-slate-200 p-10 shadow-sm">
+                        <h3 class="text-xl font-bold mb-6 text-center uppercase">Konfigurasi Endpoint</h3>
+                        <div class="space-y-4">
+                            <label class="text-xs font-bold uppercase text-slate-400 block">URL Google Apps Script</label>
+                            <input type="text" id="apiUrl" class="w-full p-3 bg-slate-50 border border-slate-300 rounded font-mono text-xs" placeholder="https://script.google.com/macros/s/..." oninput="saveData('api_url', this.value)">
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const PRE = "gw_pro_v6_";
+        function refreshIcons() { if(window.lucide) lucide.createIcons(); }
+        function saveData(key, val) { localStorage.setItem(PRE + key, val); }
+        function loadData(key) { return localStorage.getItem(PRE + key); }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+            setTimeout(() => {
+                refreshIcons();
+                autoResizeTextareas();
+            }, 400);
+        }
+
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            const target = document.getElementById(id);
+            if(target) target.classList.add('active');
+            
+            const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(`'${id}'`));
+            if(btn) btn.classList.add('active');
+            
+            document.getElementById('contentScroll').scrollTop = 0;
+            refreshIcons();
+            autoResizeTextareas();
+        }
+
+        const defaultProg = [
+            { p: "Pendampingan Akademik", k: "1. Melakukan pemetaan awal...\n2. Diskusi rutin bulanan...\n3. Strategi belajar...", i: "Murid mengetahui kekuatan..." },
+            { p: "Pengembangan Kompetensi", k: "1. Identifikasi bakat...\n2. Rekomendasi ekskul...\n3. Portofolio...", i: "Murid aktif kegiatan..." },
+            { p: "Pengembangan Keterampilan", k: "1. Proyek kepemimpinan...\n2. Diskusi soft skills...\n3. Organisasi...", i: "Peningkatan komunikasi..." },
+            { p: "Pengembangan Karakter", k: "1. Observasi perilaku...\n2. Konseling nilai...\n3. Role model...", i: "Disiplin & Tanggung jawab..." }
+        ];
+
+        let progData = JSON.parse(loadData('prog_pilar')) || defaultProg;
+
+        function renderProg() {
+            const tbody = document.getElementById('progTable');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            progData.forEach((it, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 text-center font-bold border border-slate-300 bg-slate-50">${i+1}</td>
+                    <td class="p-3 border border-slate-300 font-bold"><textarea class="edit-input font-bold" oninput="updProg(${i}, 'p', this.value)" rows="2">${it.p}</textarea></td>
+                    <td class="p-3 border border-slate-300"><textarea class="edit-input" oninput="updProg(${i}, 'k', this.value)" rows="5">${it.k}</textarea></td>
+                    <td class="p-3 border border-slate-300"><textarea class="edit-input italic" oninput="updProg(${i}, 'i', this.value)" rows="5">${it.i}</textarea></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        function updProg(i, k, v) { progData[i][k] = v; saveData('prog_pilar', JSON.stringify(progData)); autoResizeTextareas(); }
+
+        function autoResizeTextareas() {
+            document.querySelectorAll('textarea.edit-input').forEach(el => {
+                el.style.height = 'auto';
+                el.style.height = (el.scrollHeight) + 'px';
+            });
+        }
+
+        let studentData = JSON.parse(loadData('students')) || [];
+        function renderStudents() {
+            const tbody = document.getElementById('studentTable');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            studentData.forEach((st, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="border p-3 text-center font-bold text-slate-300">${i+1}</td>
+                    <td class="border p-3"><input type="text" value="${st.nama}" class="w-full bg-transparent font-bold outline-none" oninput="updSt(${i}, 'nama', this.value)"></td>
+                    <td class="border p-3"><input type="text" value="${st.nisn}" class="w-full bg-transparent font-mono text-xs text-slate-500 outline-none" oninput="updSt(${i}, 'nisn', this.value)"></td>
+                    <td class="border p-3 text-center no-print"><button onclick="delSt(${i})" class="text-slate-300 hover:text-red-500 transition"><i data-lucide="x-circle" class="w-5 h-5"></i></button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            refreshIcons();
+        }
+        function updSt(i, k, v) { studentData[i][k] = v; saveData('students', JSON.stringify(studentData)); }
+        function addStudentRow() { studentData.push({ nama: "", nisn: "" }); renderStudents(); }
+        function delSt(i) { studentData.splice(i, 1); renderStudents(); saveData('students', JSON.stringify(studentData)); }
+
+        async function syncToCloud() {
+            const url = loadData('api_url');
+            if(!url) { alert("Konfigurasi URL API di menu Settings!"); return; }
+            alert("Sedang mengirim data...");
+        }
+
+        function downloadBackup() {
+            const fullData = {};
+            for (let i = 0; i < localStorage.length; i++){
+                let key = localStorage.key(i);
+                if(key.startsWith(PRE)) fullData[key] = localStorage.getItem(key);
+            }
+            const blob = new Blob([JSON.stringify(fullData, null, 2)], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = "data_administrasi.json"; a.click();
+        }
+
+        window.onload = () => {
+            document.getElementById('namaGuru').value = loadData('guru_name') || '';
+            document.getElementById('nipGuru').value = loadData('guru_nip') || '';
+            document.getElementById('kelasGuru').value = loadData('guru_kelas') || '';
+            document.getElementById('apiUrl').value = loadData('api_url') || '';
+            
+            // Inisialisasi jadwal dihapus dari sini
+
+            renderProg();
+            renderStudents();
+            refreshIcons();
+            setTimeout(autoResizeTextareas, 500);
+        };
+    </script>
+</body>
+</html>
