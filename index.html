@@ -1,782 +1,833 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aplikasi Administrasi Guru Wali</title>
-  <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background: #e9ecef; margin: 0; padding: 20px; }
-    .container { max-width: 1200px; margin: auto; background: white; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); padding: 25px; }
-    h1 { margin-top: 0; color: #343a40; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; }
-    #kontakSection { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-    #kontakSection input { width: 300px; padding: 8px; margin-right: 10px; border: 1px solid #ced4da; border-radius: 4px; }
-    .nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; background: #f1f3f5; padding: 12px; border-radius: 30px; justify-content: center; }
-    .nav button { background: white; border: 1px solid #adb5bd; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: 0.2s; }
-    .nav button:hover { background: #007bff; color: white; border-color: #007bff; }
-    .page { display: none; }
-    .page.active { display: block; }
-    .btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; }
-    .btn-secondary { background: #6c757d; }
-    .btn-success { background: #28a745; }
-    .btn-danger { background: #dc3545; }
-    .btn-warning { background: #ffc107; color: black; }
-    .form-section { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-    .form-section h3 { margin-top: 0; color: #495057; border-bottom: 1px solid #ced4da; padding-bottom: 8px; }
-    .form-row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
-    .form-group { flex: 1 1 200px; }
-    label { font-weight: 600; display: block; margin-bottom: 5px; color: #495057; }
-    input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; }
-    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-    th { background: #007bff; color: white; padding: 10px; }
-    td, th { border: 1px solid #dee2e6; padding: 10px; vertical-align: top; }
-    td ul { margin: 0; padding-left: 20px; }
-    .card { background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-    .card-header { font-weight: bold; margin-bottom: 10px; }
-    #status { margin-top: 15px; padding: 10px; border-radius: 4px; display: none; }
-    .status-success { background: #d4edda; color: #155724; display: block !important; }
-    .status-error { background: #f8d7da; color: #721c24; display: block !important; }
-    .inline-btn { margin-right: 5px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Guru Wali Kelas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .menu-section { display: none; }
+        .menu-section.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Styling Form Document (Profil Murid) - PASTI SATU BARIS */
+        .doc-label { @apply block text-sm font-medium text-slate-700 mb-1; }
+        .doc-input { @apply w-full rounded border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 bg-white transition-shadow; }
+        .doc-row { @apply flex flex-row gap-3 items-center mb-4; }
+        .doc-row.align-top { @apply items-start; }
+        .doc-row-label { @apply w-2/5 lg:w-1/3 text-sm font-medium text-slate-700 leading-snug shrink-0; }
+        .doc-row.align-top .doc-row-label { @apply mt-2; }
+        .doc-row-input { @apply flex-1 min-w-0; }
+        .doc-section-title { @apply font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4 mt-8 uppercase text-sm tracking-wide; }
+
+        /* Styling khusus untuk cetak (Print) */
+        @media print {
+            body { background-color: white; }
+            #sidebar, #topbar, .print\:hidden { display: none !important; }
+            #main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            .menu-section { display: none !important; }
+            .menu-section.active { display: block !important; }
+            .print-document { border: none !important; box-shadow: none !important; max-width: 100% !important; padding: 0 !important; }
+            input, textarea, select { border: 1px solid #cbd5e1 !important; background: white !important; }
+        }
+    </style>
 </head>
-<body>
-<div class="container">
-  <h1>📋 Administrasi Guru Wali</h1>
+<body class="text-slate-800 h-screen flex overflow-hidden">
 
-  <!-- Konfirmasi Kontak -->
-  <div id="kontakSection">
-    <h2>🔐 Konfirmasi Kontak</h2>
-    <p>Masukkan nomor HP Anda untuk menyimpan dan memuat data.</p>
-    <input type="text" id="phoneInput" placeholder="Nomor HP (contoh: 08123456789)" value="">
-    <button class="btn" onclick="konfirmasiKontak()">Konfirmasi</button>
-  </div>
-
-  <!-- Navigasi (muncul setelah konfirmasi) -->
-  <div id="navMenu" class="nav" style="display: none;">
-    <button onclick="tampilPage('identitas')">🏫 Identitas Guru</button>
-    <button onclick="tampilPage('program')">📚 Program Kerja</button>
-    <button onclick="tampilPage('jadwal')">📅 Jadwal Kegiatan</button>
-    <button onclick="tampilPage('dataMurid')">👥 Data Murid</button>
-    <button onclick="tampilPage('profilMurid')">📝 Profil Murid</button>
-    <button onclick="tampilPage('jurnal')">📓 Jurnal Pertemuan</button>
-    <button onclick="tampilPage('laporan')">📊 Laporan Perkembangan</button>
-    <button onclick="tampilPage('rencana')">🎯 Rencana Pengembangan Diri</button>
-    <button onclick="logout()" class="btn-danger">🔄 Ganti Kontak</button>
-  </div>
-
-  <!-- ================== HALAMAN ================== -->
-
-  <!-- Halaman Identitas Guru -->
-  <div id="identitasPage" class="page">
-    <h2>Identitas Guru Wali</h2>
-    <form id="formGuru">
-      <div class="form-section">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Nama Lengkap <span style="color:red;">*</span></label>
-            <input type="text" name="nama" required>
-          </div>
-          <div class="form-group">
-            <label>NUPTK</label>
-            <input type="text" name="nuptk">
-          </div>
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="w-64 bg-slate-900 text-slate-300 flex flex-col transition-all duration-300 z-40 absolute md:relative h-full transform -translate-x-full md:translate-x-0 print:hidden">
+        <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+            <div class="bg-indigo-600 p-2 rounded-lg text-white">
+                <i data-lucide="book-open" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold text-white leading-tight">GuruWali<span class="text-indigo-400">Pro</span></h1>
+                <p class="text-xs text-slate-500">Sistem Administrasi</p>
+            </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Sekolah</label>
-            <input type="text" name="sekolah">
-          </div>
-          <div class="form-group">
-            <label>Mata Pelajaran (jika ada)</label>
-            <input type="text" name="mapel">
-          </div>
+        
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+            <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-4">Menu Utama</p>
+            <button onclick="switchTab('identitas')" id="tab-identitas" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors bg-indigo-600/10 text-indigo-400">
+                <i data-lucide="user-circle" class="w-4 h-4"></i> Identitas Guru
+            </button>
+            <button onclick="switchTab('program')" id="tab-program" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors">
+                <i data-lucide="calendar" class="w-4 h-4"></i> Program Kegiatan
+            </button>
+            <button onclick="switchTab('data-murid')" id="tab-data-murid" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors">
+                <i data-lucide="users" class="w-4 h-4"></i> Data Murid
+            </button>
+            <button onclick="switchTab('profil-murid')" id="tab-profil-murid" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors">
+                <i data-lucide="contact" class="w-4 h-4"></i> Profil Murid
+            </button>
+            <button onclick="switchTab('jurnal')" id="tab-jurnal" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors">
+                <i data-lucide="file-text" class="w-4 h-4"></i> Jurnal Pertemuan
+            </button>
+            <button onclick="switchTab('laporan')" id="tab-laporan" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors">
+                <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Laporan Perkembangan
+            </button>
+            <button onclick="switchTab('rencana')" id="tab-rencana" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors">
+                <i data-lucide="trending-up" class="w-4 h-4"></i> Rencana Pengembangan
+            </button>
+        </nav>
+        
+        <div class="p-4 border-t border-slate-800 text-xs text-center text-slate-500">
+            &copy; 2024 Aplikasi Guru Wali
         </div>
-        <!-- Tambahan field lain sesuai contoh (alamat, dll) bisa ditambahkan -->
-      </div>
-      <button type="button" class="btn btn-success" onclick="simpanGuru()">💾 Simpan Identitas</button>
-    </form>
-  </div>
+    </aside>
 
-  <!-- Halaman Program Kerja (Statis sesuai contoh) -->
-  <div id="programPage" class="page">
-    <h2>Program Kerja Guru Wali</h2>
-    <p><em>Empat pilar utama sesuai tugas pokok:</em></p>
-    <table>
-      <thead><tr><th>No</th><th>Pilar Program</th><th>Bentuk Kegiatan</th><th>Indikator Keberhasilan</th></tr></thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Pendampingan Akademik</td>
-          <td>
-            <ul>
-              <li>Melakukan pemetaan awal kemampuan akademik murid.</li>
-              <li>Diskusi rutin minimal 1x/bulan terkait perkembangan nilai dan kendala belajar.</li>
-              <li>Memberikan saran dan strategi belajar efektif.</li>
-              <li>Berkoordinasi dengan guru mapel lain jika murid kesulitan.</li>
-            </ul>
-          </td>
-          <td>Murid mengetahui kekuatan/kelemahan akademik, terjadi peningkatan hasil belajar, memiliki strategi belajar lebih baik.</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Pengembangan Kompetensi</td>
-          <td>
-            <ul>
-              <li>Diskusi identifikasi bakat, minat, potensi non-akademik.</li>
-              <li>Informasi dan rekomendasi ekstrakurikuler, lomba, seminar.</li>
-              <li>Membimbing menyusun portofolio prestasi.</li>
-            </ul>
-          </td>
-          <td>Murid aktif mengikuti minimal satu kegiatan pengembangan diri, memiliki portofolio prestasi, mampu mengartikulasikan kompetensi.</td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td>Pengembangan Keterampilan</td>
-          <td>
-            <ul>
-              <li>Membimbing proyek pengembangan soft skill (leadership, komunikasi, kerja tim).</li>
-              <li>Diskusi keterampilan abad 21.</li>
-              <li>Mendorong partisipasi dalam organisasi/kepanitiaan.</li>
-            </ul>
-          </td>
-          <td>Murid menunjukkan peningkatan komunikasi, kepemimpinan, kerjasama tim, lebih percaya diri.</td>
-        </tr>
-        <tr>
-          <td>4</td>
-          <td>Pengembangan Karakter & Kolaborasi</td>
-          <td>
-            <ul>
-              <li>Observasi perilaku dan sikap sehari-hari.</li>
-              <li>Sesi diskusi/konseling tentang kejujuran, tanggung jawab, disiplin, empati.</li>
-              <li>Menjadi teladan.</li>
-              <li>Penanganan awal masalah perilaku, koordinasi dengan Guru BK.</li>
-            </ul>
-          </td>
-          <td>Murid menunjukkan perkembangan karakter positif, penurunan masalah perilaku, hubungan baik dengan orang tua.</td>
-        </tr>
-      </tbody>
-    </table>
-    <p style="text-align:right;">Mengetahui,<br>Guru Wali<br>(_________________________)</p>
-  </div>
+    <!-- MAIN CONTENT -->
+    <main id="main-content" class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50 relative w-full">
+        <!-- TOPBAR -->
+        <header id="topbar" class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shrink-0 print:hidden">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="text-slate-500 hover:text-slate-800 bg-slate-100 p-2 rounded-lg transition-colors">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+                <h2 id="page-title" class="text-lg font-bold text-slate-800">Identitas Guru</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden sm:block">
+                    <p id="topbar-nama" class="text-sm font-bold text-slate-800">Nama Guru</p>
+                    <p id="topbar-kelas" class="text-xs text-slate-500">Kelas -</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                </div>
+            </div>
+        </header>
 
-  <!-- Halaman Jadwal Kegiatan (Statis) -->
-  <div id="jadwalPage" class="page">
-    <h2>Jadwal Kegiatan Tahunan</h2>
-    <table>
-      <thead><tr><th>Waktu</th><th>Kegiatan</th><th>Keterangan</th></tr></thead>
-      <tbody>
-        <tr><th colspan="3" style="background:#e2e3e5;">Semester Ganjil</th></tr>
-        <tr><td>Juli</td><td>Menerima daftar murid dampingan, pertemuan awal perkenalan, mengarahkan pengisian Formulir 1: Profil Murid</td><td>Membangun hubungan awal</td></tr>
-        <tr><td>Agustus - November</td><td>Sesi pendampingan rutin (individu/kelompok), mengisi Formulir 2: Jurnal Pertemuan, koordinasi dengan Wali Kelas & Guru BK</td><td>Pelaksanaan program inti</td></tr>
-        <tr><td>Desember</td><td>Evaluasi perkembangan semester ganjil, mengisi Formulir 3: Laporan Perkembangan Periodik, diskusi hasil dengan murid/orang tua</td><td>Evaluasi dan Pelaporan</td></tr>
-        <tr><th colspan="3" style="background:#e2e3e5;">Semester Genap</th></tr>
-        <tr><td>Januari</td><td>Pertemuan awal semester, review hasil sebelumnya, menetapkan target baru, mengisi Formulir 4: Rencana Pengembangan Diri</td><td>Perencanaan</td></tr>
-        <tr><td>Februari - Mei</td><td>Sesi pendampingan rutin, mengisi Formulir 2, koordinasi dengan Wali Kelas & Guru BK</td><td>Pelaksanaan program inti</td></tr>
-        <tr><td>Juni</td><td>Evaluasi akhir tahun, mengisi Formulir 3, memberikan rekomendasi untuk tahun ajaran berikutnya</td><td>Evaluasi dan Pelaporan Akhir</td></tr>
-      </tbody>
-    </table>
-  </div>
+        <!-- CONTENT AREA -->
+        <div class="flex-1 overflow-y-auto p-6 scroll-smooth">
+            
+            <!-- 1. IDENTITAS GURU -->
+            <section id="identitas" class="menu-section active max-w-2xl mx-auto">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex items-center gap-4 mb-6 pb-4 border-b border-slate-100">
+                        <div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500"><i data-lucide="user-circle" class="w-8 h-8"></i></div>
+                        <div><h3 class="text-lg font-bold text-slate-800">Data Wali Kelas</h3><p class="text-sm text-slate-500">Lengkapi identitas Anda sebagai wali kelas.</p></div>
+                    </div>
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap Guru</label>
+                            <input type="text" id="identitas-nama" class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Masukkan nama lengkap beserta gelar">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">NIP (Nomor Induk Pegawai)</label>
+                            <input type="text" id="identitas-nip" class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Masukkan NIP (jika ada)">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Kelas yang Didampingi</label>
+                            <input type="text" id="identitas-kelas" class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: X IPA 1">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Tahun Pelajaran</label>
+                            <input type="text" id="identitas-tahun" class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: 2024/2025">
+                        </div>
+                        <div class="pt-4 text-right">
+                            <button type="button" onclick="triggerToast('Identitas berhasil disimpan!')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-lg transition-colors text-sm">Simpan Identitas</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
 
-  <!-- Halaman Data Murid -->
-  <div id="dataMuridPage" class="page">
-    <h2>📋 Data Murid Dampingan</h2>
-    <button class="btn btn-success" onclick="tambahMuridBaru()">➕ Tambah Murid</button>
-    <table id="tabelMurid">
-      <thead><tr><th>No</th><th>Nama Lengkap</th><th>NIS/NISN</th><th>Kelas</th><th>Aksi</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
+            <!-- 2. PROGRAM KEGIATAN -->
+            <section id="program" class="menu-section max-w-5xl mx-auto">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="px-6 py-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">Program Kerja Wali Kelas</h2>
+                            <p class="text-sm text-slate-500 mt-1">Daftar rencana kegiatan dan program pembinaan kelas.</p>
+                        </div>
+                        <button onclick="document.getElementById('modal-tambah-program').classList.remove('hidden')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Tambah Program
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-slate-50 text-slate-600 font-medium border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-4 w-12 text-center">No</th>
+                                    <th class="px-6 py-4">Nama Program / Kegiatan</th>
+                                    <th class="px-6 py-4">Tujuan / Sasaran</th>
+                                    <th class="px-6 py-4">Waktu Pelaksanaan</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-program-body" class="divide-y divide-slate-100">
+                                <tr>
+                                    <td colspan="6" class="px-6 py-8 text-center text-slate-400 italic">
+                                        Belum ada program kerja. Klik "Tambah Program" untuk memulai.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
 
-  <!-- Halaman Profil Murid (dengan pilihan murid) -->
-  <div id="profilMuridPage" class="page">
-    <h2>📄 Profil Murid</h2>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Pilih Murid:</label>
-        <select id="pilihMuridProfil" onchange="muatProfilMurid()">
-          <option value="">-- Pilih Murid --</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <button class="btn btn-secondary" onclick="resetFormProfil()">Baru</button>
-      </div>
+            <!-- 3. DATA MURID -->
+            <section id="data-murid" class="menu-section max-w-6xl mx-auto">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="px-6 py-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">Daftar Murid</h2>
+                            <p class="text-sm text-slate-500 mt-1">Kelola data dasar murid di kelas Anda.</p>
+                        </div>
+                        <button onclick="document.getElementById('modal-tambah-murid').classList.remove('hidden')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Murid
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-slate-50 text-slate-600 font-medium border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-4 w-12 text-center">No</th>
+                                    <th class="px-6 py-4">Nama Lengkap</th>
+                                    <th class="px-6 py-4">L/P</th>
+                                    <th class="px-6 py-4">NIS</th>
+                                    <th class="px-6 py-4">NISN</th>
+                                    <th class="px-6 py-4">Kelas</th>
+                                    <th class="px-6 py-4">Tahun Masuk</th>
+                                    <th class="px-6 py-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-murid-body" class="divide-y divide-slate-100">
+                                <tr>
+                                    <td colspan="8" class="px-6 py-8 text-center text-slate-400 italic">
+                                        Belum ada data murid. Klik "Tambah Murid" untuk memulai.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. PROFIL MURID -->
+            <section id="profil-murid" class="menu-section max-w-4xl mx-auto">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 print-document print:p-0">
+                    <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 rounded-t-xl print:hidden">
+                        <div class="flex-1 w-full sm:w-auto">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Pilih Murid untuk Dilihat/Diubah:</label>
+                            <select id="prof-select-murid" onchange="loadProfilMurid(this.value)" class="w-full sm:w-72 rounded-lg border border-slate-300 p-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">-- Pilih Murid --</option>
+                            </select>
+                        </div>
+                        <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                            <i data-lucide="printer" class="w-4 h-4"></i> Cetak Dokumen
+                        </button>
+                    </div>
+
+                    <div class="p-8 pb-12" id="dokumen-profil">
+                        <div class="text-center mb-8 border-b-2 border-slate-800 pb-4">
+                            <h2 class="text-2xl font-bold text-slate-900 uppercase tracking-wide">Profil Lengkap Murid</h2>
+                            <p class="text-slate-600 mt-1">Dokumen Administrasi Wali Kelas</p>
+                        </div>
+
+                        <form id="form-profil-lengkap">
+                            <!-- Header Identitas -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 mb-8 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <div class="doc-row">
+                                    <label class="doc-row-label">NIS / NISN</label>
+                                    <div class="doc-row-input"><input type="text" id="prof-nis" class="doc-input bg-slate-100 font-semibold" readonly placeholder="-"></div>
+                                </div>
+                                <div class="doc-row">
+                                    <label class="doc-row-label">Kelas</label>
+                                    <div class="doc-row-input"><input type="text" id="prof-kelas" class="doc-input bg-slate-100" readonly placeholder="-"></div>
+                                </div>
+                                <div class="doc-row">
+                                    <label class="doc-row-label">Nama Guru Wali</label>
+                                    <div class="doc-row-input"><input type="text" id="prof-guru" class="doc-input bg-slate-100" readonly placeholder="-"></div>
+                                </div>
+                                <div class="doc-row">
+                                    <label class="doc-row-label">Tahun Masuk</label>
+                                    <div class="doc-row-input"><input type="text" id="prof-tahun-masuk" class="doc-input bg-slate-100" readonly placeholder="-"></div>
+                                </div>
+                            </div>
+
+                            <!-- Bagian A -->
+                            <h3 class="doc-section-title">A. Data Diri & Keluarga</h3>
+                            <div class="space-y-3 mb-8">
+                                <div class="doc-row align-top">
+                                    <label class="doc-row-label">Alamat</label>
+                                    <div class="doc-row-input"><textarea id="prof-alamat" rows="3" class="doc-input"></textarea></div>
+                                </div>
+                                <div class="doc-row">
+                                    <label class="doc-row-label">Hobi</label>
+                                    <div class="doc-row-input"><input type="text" id="prof-hobi" class="doc-input"></div>
+                                </div>
+                                <div class="doc-row">
+                                    <label class="doc-row-label">Nama Ayah</label>
+                                    <div class="doc-row-input"><input type="text" id="prof-ayah" class="doc-input"></div>
+                                </div>
+                                <div class="doc-row">
+                                    <label class="doc-row-label">Nama Ibu</label>
+                                    <div class="doc-row-input"><input type="text" id="prof-ibu" class="doc-input"></div>
+                                </div>
+                                <div class="doc-row">
+                                    <label class="doc-row-label">No. Telepon / WA Ortu</label>
+                                    <div class="doc-row-input"><input type="text" id="prof-telp" class="doc-input"></div>
+                                </div>
+                            </div>
+
+                            <!-- Bagian B -->
+                            <h3 class="doc-section-title">B. Prestasi / Potensi Akademik (Nilai Raport Sebelumnya)</h3>
+                            <div class="space-y-4 mb-8">
+                                <div class="doc-row align-top">
+                                    <label class="doc-row-label">Mata pelajaran yang disukai / kuat</label>
+                                    <div class="doc-row-input"><input type="text" id="prof-mapel_kuat" class="doc-input"></div>
+                                </div>
+                                <div class="doc-row align-top">
+                                    <label class="doc-row-label">Mata pelajaran yang butuh pendampingan</label>
+                                    <div class="doc-row-input"><input type="text" id="prof-mapel_lemah" class="doc-input"></div>
+                                </div>
+                                <div class="doc-row align-top">
+                                    <label class="doc-row-label">Prestasi / Penghargaan (Jika ada)</label>
+                                    <div class="doc-row-input"><input type="text" id="prof-prestasi" class="doc-input"></div>
+                                </div>
+                            </div>
+
+                            <!-- Bagian C -->
+                            <h3 class="doc-section-title">C. Sosial & Emosional (Kondisi Peserta Didik)</h3>
+                            <div class="space-y-4 mb-8">
+                                <div class="doc-row align-top">
+                                    <label class="doc-row-label">Bagaimana cara kamu belajar yang nyaman?</label>
+                                    <div class="doc-row-input"><input type="text" id="prof-cara_belajar" class="doc-input"></div>
+                                </div>
+                                <div class="doc-row align-top">
+                                    <label class="doc-row-label">Kondisi / Kebiasaan / Hal yang perlu diketahui Guru Wali</label>
+                                    <div class="doc-row-input"><input type="text" id="prof-kondisi_khusus" class="doc-input"></div>
+                                </div>
+                            </div>
+
+                            <!-- Bagian D -->
+                            <h3 class="doc-section-title">D. Target & Harapan Awal</h3>
+                            <div class="space-y-4 mb-8">
+                                <div class="doc-row align-top">
+                                    <label class="doc-row-label">Apa yang ingin kamu capai di tahun ini (akademik / non-akademik)?</label>
+                                    <div class="doc-row-input"><textarea id="prof-harapan_murid" rows="3" class="doc-input"></textarea></div>
+                                </div>
+                                <div class="doc-row align-top">
+                                    <label class="doc-row-label">Apa dukungan yang kamu harapkan dari Guru Wali?</label>
+                                    <div class="doc-row-input"><textarea id="prof-harapan_dukungan" rows="3" class="doc-input"></textarea></div>
+                                </div>
+                                <div class="doc-row align-top">
+                                    <label class="doc-row-label">Catatan Awal Guru Wali</label>
+                                    <div class="doc-row-input"><textarea id="prof-catatan_guru" rows="3" class="doc-input"></textarea></div>
+                                </div>
+                            </div>
+
+                            <div class="text-right print:hidden border-t pt-4">
+                                <button type="button" onclick="simpanProfilMurid()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-lg transition-colors text-sm">Simpan Data Profil</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. JURNAL PERTEMUAN -->
+            <section id="jurnal" class="menu-section max-w-4xl mx-auto">
+                <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-slate-200 print-document print:p-0">
+                    <div class="text-center mb-8 border-b-2 border-slate-800 pb-4">
+                        <h2 class="text-2xl font-bold text-slate-900 uppercase tracking-wide">Jurnal Pertemuan Wali Kelas</h2>
+                        <p class="text-slate-600 mt-1">Pencatatan Bimbingan / Konseling Murid</p>
+                    </div>
+
+                    <form id="form-jurnal" onsubmit="handleSimpanJurnal(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="doc-row align-top">
+                                <label class="doc-row-label">Pilih Murid</label>
+                                <div class="doc-row-input">
+                                    <select id="jur-select-murid" required class="doc-input">
+                                        <option value="">-- Pilih Murid --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="doc-row align-top">
+                                <label class="doc-row-label">Tanggal Pertemuan</label>
+                                <div class="doc-row-input"><input type="date" id="jur-tanggal" required class="doc-input"></div>
+                            </div>
+                        </div>
+
+                        <div class="doc-row border-b border-slate-100 pb-4">
+                            <label class="doc-row-label">Jenis Pertemuan</label>
+                            <div class="doc-row-input flex flex-wrap gap-4">
+                                <label class="flex items-center gap-2 text-sm"><input type="radio" name="jur_jenis" value="Individu" class="w-4 h-4 text-indigo-600" required> Individu</label>
+                                <label class="flex items-center gap-2 text-sm"><input type="radio" name="jur_jenis" value="Kelompok Kecil" class="w-4 h-4 text-indigo-600"> Kelompok Kecil</label>
+                                <label class="flex items-center gap-2 text-sm"><input type="radio" name="jur_jenis" value="Insidental" class="w-4 h-4 text-indigo-600"> Insidental</label>
+                            </div>
+                        </div>
+
+                        <div class="doc-row align-top border-b border-slate-100 pb-4">
+                            <label class="doc-row-label">Topik/Agenda Utama Pembahasan</label>
+                            <div class="doc-row-input grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="jur_topik" value="Akademik" class="w-4 h-4 rounded text-indigo-600 border-slate-300"> Akademik (Nilai/Tugas)</label>
+                                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="jur_topik" value="Perilaku" class="w-4 h-4 rounded text-indigo-600 border-slate-300"> Perilaku / Kedisiplinan</label>
+                                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="jur_topik" value="Keluarga" class="w-4 h-4 rounded text-indigo-600 border-slate-300"> Kondisi Keluarga / Personal</label>
+                                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="jur_topik" value="Lainnya" class="w-4 h-4 rounded text-indigo-600 border-slate-300"> Lainnya</label>
+                            </div>
+                        </div>
+
+                        <div class="doc-row align-top">
+                            <label class="doc-row-label">Catatan Hasil Pertemuan (Deskripsi Singkat)</label>
+                            <div class="doc-row-input"><textarea id="jur-catatan" rows="4" required class="doc-input"></textarea></div>
+                        </div>
+
+                        <div class="doc-row align-top">
+                            <label class="doc-row-label">Tindak Lanjut yang Disepakati</label>
+                            <div class="doc-row-input"><textarea id="jur-tindaklanjut" rows="3" class="doc-input"></textarea></div>
+                        </div>
+
+                        <div class="text-right print:hidden pt-4">
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-lg transition-colors text-sm">Simpan Jurnal</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="mt-8 bg-white p-6 rounded-xl shadow-sm border border-slate-200 print:hidden">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Riwayat Jurnal Tersimpan</h3>
+                    <div id="list-jurnal" class="space-y-4 max-h-96 overflow-y-auto pr-2">
+                        <div class="text-center text-slate-400 italic text-sm py-4">Belum ada jurnal yang disimpan.</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. LAPORAN PERKEMBANGAN (Placeholder) -->
+            <section id="laporan" class="menu-section max-w-4xl mx-auto">
+                <div class="bg-white p-10 rounded-xl shadow-sm border border-slate-200 text-center">
+                    <div class="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="bar-chart-2" class="w-8 h-8"></i></div>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">Laporan Perkembangan</h2>
+                    <p class="text-slate-500">Halaman ini sedang disiapkan.</p>
+                </div>
+            </section>
+
+            <!-- 7. RENCANA PENGEMBANGAN (Placeholder) -->
+            <section id="rencana" class="menu-section max-w-4xl mx-auto">
+                <div class="bg-white p-10 rounded-xl shadow-sm border border-slate-200 text-center">
+                    <div class="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="trending-up" class="w-8 h-8"></i></div>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">Rencana Pengembangan</h2>
+                    <p class="text-slate-500">Halaman ini sedang disiapkan.</p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- MODAL TAMBAH MURID -->
+    <div id="modal-tambah-murid" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 print:hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden transform transition-all">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-bold text-slate-800">Tambah Data Murid</h3>
+                <button onclick="document.getElementById('modal-tambah-murid').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="form-tambah-murid" onsubmit="handleTambahMurid(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap</label>
+                    <input type="text" name="NamaLengkap" required class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Jenis Kelamin</label>
+                    <select name="JK" required class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="Laki-laki">Laki-laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">NIS</label>
+                        <input type="text" name="NIS" required class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">NISN</label>
+                        <input type="text" name="NISN" class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Kelas</label>
+                        <input type="text" name="Kelas" required class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Tahun Masuk</label>
+                        <input type="text" name="TahunMasuk" required class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+                <div class="pt-2 flex gap-3 mt-4">
+                    <button type="button" onclick="document.getElementById('modal-tambah-murid').classList.add('hidden')" class="flex-1 bg-white border border-slate-300 text-slate-700 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">Batal</button>
+                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">Simpan Data</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <form id="formProfil">
-      <!-- Field identitas dasar (akan terisi otomatis) -->
-      <div class="form-section">
-        <h3>🔖 Identitas Dasar</h3>
-        <div class="form-row">
-          <div class="form-group"><label>NIS/NISN</label><input type="text" name="nisn" id="profil_nisn"></div>
-          <div class="form-group"><label>Kelas</label><input type="text" name="kelas" id="profil_kelas"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Nama Lengkap</label><input type="text" name="nama" id="profil_nama"></div>
-          <div class="form-group"><label>Tahun Masuk</label><input type="text" name="tahun_masuk" id="profil_tahun"></div>
-        </div>
-      </div>
-      <!-- A. Data Diri & Keluarga -->
-      <div class="form-section">
-        <h3>A. Data Diri & Keluarga</h3>
-        <div class="form-row">
-          <div class="form-group"><label>Tempat Lahir</label><input type="text" name="tempat_lahir"></div>
-          <div class="form-group"><label>Tanggal Lahir</label><input type="date" name="tgl_lahir"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Jenis Kelamin</label><select name="jk"><option>Laki-laki</option><option>Perempuan</option></select></div>
-          <div class="form-group"><label>Agama</label><input type="text" name="agama"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Alamat</label><textarea name="alamat" rows="2"></textarea></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Nama Ayah</label><input type="text" name="ayah"></div>
-          <div class="form-group"><label>Pekerjaan Ayah</label><input type="text" name="pekerjaan_ayah"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Nama Ibu</label><input type="text" name="ibu"></div>
-          <div class="form-group"><label>Pekerjaan Ibu</label><input type="text" name="pekerjaan_ibu"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>No HP Orang Tua</label><input type="text" name="hp_ortu"></div>
-        </div>
-      </div>
-      <!-- B. Riwayat Akademik -->
-      <div class="form-section">
-        <h3>B. Riwayat Akademik</h3>
-        <div class="form-row">
-          <div class="form-group"><label>Nilai Rata-rata Rapot (semester sebelumnya)</label><input type="text" name="rata_rapor"></div>
-          <div class="form-group"><label>Peringkat di Kelas</label><input type="text" name="peringkat"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Mata Pelajaran yang Disukai</label><input type="text" name="mapel_suka"></div>
-          <div class="form-group"><label>Mata Pelajaran yang Sulit</label><input type="text" name="mapel_sulit"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Catatan Khusus (misal: pernah tidak naik kelas)</label><textarea name="catatan_akademik"></textarea></div>
-        </div>
-      </div>
-      <!-- C. Minat, Bakat, Prestasi Non-Akademik -->
-      <div class="form-section">
-        <h3>C. Minat, Bakat, & Prestasi Non-Akademik</h3>
-        <div class="form-row">
-          <div class="form-group"><label>Minat/Kegemaran</label><input type="text" name="minat"></div>
-          <div class="form-group"><label>Bakat (misal: olahraga, seni)</label><input type="text" name="bakat"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Ekstrakurikuler yang Diikuti</label><input type="text" name="ekskul"></div>
-          <div class="form-group"><label>Prestasi Non-Akademik</label><input type="text" name="prestasi_non"></div>
-        </div>
-      </div>
-      <!-- D. Target & Harapan Awal -->
-      <div class="form-section">
-        <h3>D. Target & Harapan Awal</h3>
-        <div class="form-row">
-          <div class="form-group"><label>Target Akademik (dari murid)</label><textarea name="target_akademik_murid"></textarea></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Target Pengembangan Diri (dari murid)</label><textarea name="target_pengembangan_murid"></textarea></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Harapan Orang Tua</label><textarea name="harapan_ortu"></textarea></div>
-        </div>
-      </div>
-      <button type="button" class="btn btn-success" onclick="simpanProfil()">💾 Simpan Profil Murid</button>
-    </form>
-  </div>
 
-  <!-- Halaman Jurnal Pertemuan -->
-  <div id="jurnalPage" class="page">
-    <h2>📓 Jurnal Pertemuan</h2>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Pilih Murid:</label>
-        <select id="pilihMuridJurnal" onchange="muatJurnal()">
-          <option value="">-- Pilih Murid --</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <button class="btn btn-secondary" onclick="resetFormJurnal()">Tambah Baru</button>
-      </div>
+    <!-- MODAL TAMBAH PROGRAM (BARU DIKEMBALIKAN) -->
+    <div id="modal-tambah-program" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 print:hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden transform transition-all">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-bold text-slate-800">Tambah Program Kerja</h3>
+                <button onclick="document.getElementById('modal-tambah-program').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="form-tambah-program" onsubmit="handleTambahProgram(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Nama Program / Kegiatan</label>
+                    <input type="text" name="NamaProgram" required class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Tujuan / Sasaran</label>
+                    <input type="text" name="Tujuan" required class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Waktu Pelaksanaan</label>
+                    <input type="text" name="Waktu" required placeholder="Contoh: Juli 2024 / Semester 1" class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Status Pelaksanaan</label>
+                    <select name="Status" required class="w-full rounded-lg border border-slate-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="Belum Terlaksana">Belum Terlaksana</option>
+                        <option value="Sedang Berjalan">Sedang Berjalan</option>
+                        <option value="Selesai">Selesai</option>
+                    </select>
+                </div>
+                <div class="pt-2 flex gap-3 mt-6">
+                    <button type="button" onclick="document.getElementById('modal-tambah-program').classList.add('hidden')" class="flex-1 bg-white border border-slate-300 text-slate-700 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">Batal</button>
+                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">Simpan Program</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <form id="formJurnal">
-      <input type="hidden" name="id_jurnal" id="jurnal_id">
-      <div class="form-row">
-        <div class="form-group"><label>Tanggal Pertemuan</label><input type="date" name="tanggal" id="jurnal_tanggal" required></div>
-        <div class="form-group"><label>Jenis Pertemuan</label><select name="jenis" id="jurnal_jenis"><option>Individu</option><option>Kelompok</option><option>Konseling</option><option>Diskusi</option></select></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Topik/Agenda Utama</label><input type="text" name="topik" id="jurnal_topik"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Catatan / Hasil Pembahasan</label><textarea name="catatan" id="jurnal_catatan" rows="4"></textarea></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Tindak Lanjut</label><textarea name="tindak_lanjut" id="jurnal_tindak"></textarea></div>
-      </div>
-      <button type="button" class="btn btn-success" onclick="simpanJurnal()">💾 Simpan Jurnal</button>
-      <button type="button" class="btn btn-warning" onclick="hapusJurnal()" id="hapusJurnalBtn" style="display:none;">🗑️ Hapus</button>
-    </form>
-    <hr>
-    <h3>Daftar Jurnal</h3>
-    <table id="tabelJurnal">
-      <thead><tr><th>Tanggal</th><th>Jenis</th><th>Topik</th><th>Aksi</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
 
-  <!-- Halaman Laporan Perkembangan (sederhana) -->
-  <div id="laporanPage" class="page">
-    <h2>📊 Laporan Perkembangan</h2>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Pilih Murid:</label>
-        <select id="pilihMuridLaporan" onchange="muatLaporan()">
-          <option value="">-- Pilih Murid --</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Periode Laporan</label>
-        <input type="text" id="laporan_periode" placeholder="Contoh: Semester Ganjil 2024/2025">
-      </div>
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-800 text-white px-4 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
+        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+        <span id="toast-message" class="text-sm font-medium">Berhasil disimpan!</span>
     </div>
-    <form id="formLaporan">
-      <!-- Perkembangan Akademik -->
-      <div class="form-section">
-        <h3>A. Perkembangan Akademik</h3>
-        <textarea name="akademik" rows="3" placeholder="Nilai, peningkatan, kesulitan, dll"></textarea>
-      </div>
-      <div class="form-section">
-        <h3>B. Pengembangan Kompetensi & Keterampilan</h3>
-        <textarea name="kompetensi" rows="3" placeholder="Kegiatan, prestasi, soft skill"></textarea>
-      </div>
-      <div class="form-section">
-        <h3>C. Pengembangan Karakter</h3>
-        <textarea name="karakter" rows="3" placeholder="Observasi sikap, perubahan perilaku"></textarea>
-      </div>
-      <div class="form-section">
-        <h3>D. Kesimpulan & Rekomendasi</h3>
-        <textarea name="kesimpulan" rows="3"></textarea>
-      </div>
-      <button type="button" class="btn btn-success" onclick="simpanLaporan()">💾 Simpan Laporan</button>
-    </form>
-  </div>
 
-  <!-- Halaman Rencana Pengembangan Diri -->
-  <div id="rencanaPage" class="page">
-    <h2>🎯 Rencana Pengembangan Diri (diisi bersama murid)</h2>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Pilih Murid:</label>
-        <select id="pilihMuridRencana" onchange="muatRencana()">
-          <option value="">-- Pilih Murid --</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Periode Rencana</label>
-        <input type="text" id="rencana_periode" placeholder="Contoh: Semester Genap 2024/2025">
-      </div>
-    </div>
-    <form id="formRencana">
-      <table>
-        <thead><tr><th>Bidang</th><th>Target / Tujuan</th></tr></thead>
-        <tbody>
-          <tr><td>Bidang Akademik</td><td><input type="text" name="target_akademik" placeholder="Contoh: Meningkatkan nilai Matematika >80"></td></tr>
-          <tr><td>Bidang Kompetensi & Bakat</td><td><input type="text" name="target_bakat" placeholder="Contoh: Juara 1 lomba puisi"></td></tr>
-          <tr><td>Bidang Keterampilan</td><td><input type="text" name="target_keterampilan" placeholder="Contoh: Berani bicara di depan kelas"></td></tr>
-          <tr><td>Bidang Karakter</td><td><input type="text" name="target_karakter" placeholder="Contoh: Selalu tepat waktu"></td></tr>
-        </tbody>
-      </table>
-      <div style="margin-top:20px;">
-        <p>Mengetahui,<br>Guru Wali<br>(_________________________)</p>
-        <p>Siswa ybs.<br>(_________________________)</p>
-      </div>
-      <button type="button" class="btn btn-success" onclick="simpanRencana()">💾 Simpan Rencana</button>
-    </form>
-  </div>
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
 
-  <!-- Status message -->
-  <div id="status"></div>
-</div>
+        // Data Storage
+        let dataMurid = [];
+        let dataJurnal = [];
+        let dataProgram = []; // Array untuk Program Kerja
+        let toastTimeout;
 
-<script>
-  // ================== KONFIGURASI ==================
-  const API_URL = 'https://script.google.com/macros/s/.../exec';  // <--- GANTI DENGAN URL APPS SCRIPT ANDA
+        // Sync Identitas ke Topbar
+        document.getElementById('identitas-nama').addEventListener('input', e => {
+            document.getElementById('topbar-nama').textContent = e.target.value || 'Nama Guru';
+            updateProfilReadonly();
+        });
+        document.getElementById('identitas-kelas').addEventListener('input', e => {
+            document.getElementById('topbar-kelas').textContent = 'Kelas ' + (e.target.value || '-');
+            updateProfilReadonly();
+        });
 
-  // State
-  let currentPhone = localStorage.getItem('guruPhone') || '';
-  let daftarMurid = [];  // cache daftar murid
-
-  // ================== INISIALISASI ==================
-  window.onload = function() {
-    if (currentPhone) {
-      document.getElementById('kontakSection').style.display = 'none';
-      document.getElementById('navMenu').style.display = 'flex';
-      muatDataAwal();
-    } else {
-      document.getElementById('kontakSection').style.display = 'block';
-      document.getElementById('navMenu').style.display = 'none';
-    }
-  };
-
-  // ================== FUNGSI UMUM ==================
-  function tampilPage(pageId) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(pageId + 'Page').classList.add('active');
-  }
-
-  function logout() {
-    localStorage.removeItem('guruPhone');
-    location.reload();
-  }
-
-  function konfirmasiKontak() {
-    const phone = document.getElementById('phoneInput').value.trim();
-    if (!phone) return alert('Masukkan nomor HP');
-    currentPhone = phone;
-    localStorage.setItem('guruPhone', phone);
-    document.getElementById('kontakSection').style.display = 'none';
-    document.getElementById('navMenu').style.display = 'flex';
-    muatDataAwal();
-  }
-
-  async function muatDataAwal() {
-    try {
-      // Muat identitas guru
-      const guru = await apiGet('getGuru', { phone: currentPhone });
-      if (guru && guru.nama) {
-        for (let key in guru) {
-          let input = document.querySelector(`#formGuru [name="${key}"]`);
-          if (input) input.value = guru[key];
+        // Update Field Readonly di Profil
+        function updateProfilReadonly() {
+            document.getElementById('prof-kelas').value = document.getElementById('identitas-kelas').value;
+            document.getElementById('prof-guru').value = document.getElementById('identitas-nama').value;
         }
-      }
 
-      // Muat daftar murid
-      daftarMurid = await apiGet('listMurid', { phone: currentPhone }) || [];
-      renderTabelMurid(daftarMurid);
+        // Tab Navigation & Sidebar Toggle
+        const titles = {
+            'identitas': 'Identitas Guru Wali',
+            'program': 'Program Kegiatan Wali Kelas',
+            'data-murid': 'Data Murid',
+            'profil-murid': 'Profil Lengkap Murid',
+            'jurnal': 'Jurnal Pertemuan',
+            'laporan': 'Laporan Perkembangan',
+            'rencana': 'Rencana Pengembangan'
+        };
 
-      // Isi semua dropdown pilih murid
-      const selects = ['pilihMuridProfil', 'pilihMuridJurnal', 'pilihMuridLaporan', 'pilihMuridRencana'];
-      selects.forEach(id => {
-        let select = document.getElementById(id);
-        if (select) {
-          select.innerHTML = '<option value="">-- Pilih Murid --</option>';
-          daftarMurid.forEach(m => {
-            select.innerHTML += `<option value="${m.id_murid}">${m.nama || ''} (${m.nisn || ''})</option>`;
-          });
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth < 768) {
+                sidebar.classList.toggle('-translate-x-full');
+            } else {
+                sidebar.classList.toggle('md:hidden');
+            }
         }
-      });
-    } catch (e) {
-      statusMsg('Gagal memuat data: ' + e.message, 'error');
-    }
-  }
 
-  function renderTabelMurid(muridList) {
-    let tbody = document.querySelector('#tabelMurid tbody');
-    tbody.innerHTML = '';
-    muridList.forEach((m, i) => {
-      tbody.innerHTML += `<tr>
-        <td>${i+1}</td>
-        <td>${m.nama || ''}</td>
-        <td>${m.nisn || ''}</td>
-        <td>${m.kelas || ''}</td>
-        <td>
-          <button class="btn-secondary inline-btn" onclick="editMurid('${m.id_murid}')">✏️ Edit</button>
-          <button class="btn-danger inline-btn" onclick="hapusMurid('${m.id_murid}')">🗑️ Hapus</button>
-        </td>
-      </tr>`;
-    });
-  }
+        function switchTab(tabId) {
+            document.querySelectorAll('.menu-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-indigo-600/10', 'text-indigo-400');
+                el.classList.add('text-slate-300');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            const activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.add('bg-indigo-600/10', 'text-indigo-400');
+            activeBtn.classList.remove('text-slate-300');
+            
+            document.getElementById('page-title').textContent = titles[tabId];
+            
+            if(tabId === 'profil-murid' || tabId === 'jurnal') {
+                updateDropdownMurid();
+                updateProfilReadonly();
+            }
 
-  // ================== API CALLS ==================
-  async function apiGet(action, params) {
-    const url = new URL(API_URL);
-    url.search = new URLSearchParams({ action, ...params });
-    const res = await fetch(url);
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error);
-    return json.data;
-  }
-
-  async function apiPost(action, data) {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action, data: { ...data, phone: currentPhone } })
-    });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error);
-    return json.data;
-  }
-
-  function statusMsg(msg, type = 'success') {
-    const el = document.getElementById('status');
-    el.textContent = msg;
-    el.className = type === 'success' ? 'status-success' : 'status-error';
-    setTimeout(() => el.style.display = 'none', 3000);
-  }
-
-  // ================== IDENTITAS GURU ==================
-  async function simpanGuru() {
-    const form = document.getElementById('formGuru');
-    const data = {};
-    new FormData(form).forEach((value, key) => data[key] = value);
-    data.phone = currentPhone;
-    try {
-      await apiPost('saveGuru', data);
-      statusMsg('Identitas guru tersimpan');
-    } catch (e) {
-      statusMsg('Gagal: ' + e.message, 'error');
-    }
-  }
-
-  // ================== MANAJEMEN MURID ==================
-  function tambahMuridBaru() {
-    // Generate id sementara
-    const id = 'murid_' + Date.now();
-    // Buka halaman profil dengan mode baru
-    tampilPage('profilMurid');
-    // Reset form profil dan isi id_murid (disimpan di suatu tempat)
-    resetFormProfil();
-    // Set agar nanti saat simpan, id baru dipakai
-    document.getElementById('formProfil').dataset.idMurid = id;
-    // Pilih "Baru" di dropdown
-    document.getElementById('pilihMuridProfil').value = '';
-  }
-
-  function editMurid(idMurid) {
-    tampilPage('profilMurid');
-    // Set dropdown ke id tersebut
-    document.getElementById('pilihMuridProfil').value = idMurid;
-    muatProfilMurid();
-  }
-
-  async function hapusMurid(idMurid) {
-    if (!confirm('Yakin hapus murid ini?')) return;
-    try {
-      await apiPost('hapusMurid', { id_murid: idMurid }); // Anda perlu menambahkan action hapus di Apps Script
-      statusMsg('Murid dihapus');
-      muatDataAwal(); // refresh
-    } catch (e) {
-      statusMsg('Gagal: ' + e.message, 'error');
-    }
-  }
-
-  function resetFormProfil() {
-    document.getElementById('formProfil').reset();
-    document.getElementById('formProfil').dataset.idMurid = '';
-    // Kosongkan juga field tersembunyi jika ada
-  }
-
-  async function muatProfilMurid() {
-    const idMurid = document.getElementById('pilihMuridProfil').value;
-    if (!idMurid) {
-      resetFormProfil();
-      return;
-    }
-    try {
-      const data = await apiGet('getMurid', { phone: currentPhone, id_murid: idMurid });
-      if (data) {
-        // Isi semua field yang namanya cocok
-        for (let key in data) {
-          let input = document.querySelector(`#formProfil [name="${key}"]`);
-          if (input) input.value = data[key];
+            if (window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            }
         }
-        document.getElementById('formProfil').dataset.idMurid = idMurid;
-      } else {
-        resetFormProfil();
-      }
-    } catch (e) {
-      statusMsg('Gagal muat profil: ' + e.message, 'error');
-    }
-  }
 
-  async function simpanProfil() {
-    const idMurid = document.getElementById('formProfil').dataset.idMurid || 'murid_' + Date.now();
-    const form = document.getElementById('formProfil');
-    const data = { id_murid: idMurid };
-    new FormData(form).forEach((value, key) => data[key] = value);
-    data.phone = currentPhone;
-    try {
-      await apiPost('saveMurid', data);
-      statusMsg('Profil murid tersimpan');
-      muatDataAwal(); // refresh daftar
-    } catch (e) {
-      statusMsg('Gagal: ' + e.message, 'error');
-    }
-  }
+        // ==========================
+        // PROGRAM KERJA LOGIC (RESTORED)
+        // ==========================
+        function handleTambahProgram(event) {
+            event.preventDefault();
+            const form = event.target;
+            const newProgram = {
+                id: Date.now().toString(),
+                nama: form.NamaProgram.value,
+                tujuan: form.Tujuan.value,
+                waktu: form.Waktu.value,
+                status: form.Status.value
+            };
+            
+            dataProgram.push(newProgram);
+            form.reset();
+            document.getElementById('modal-tambah-program').classList.add('hidden');
+            renderTabelProgram();
+            triggerToast("Program kerja berhasil ditambahkan!");
+        }
 
-  // ================== JURNAL ==================
-  async function muatJurnal() {
-    const idMurid = document.getElementById('pilihMuridJurnal').value;
-    if (!idMurid) return;
-    try {
-      const jurnalList = await apiGet('listJurnal', { phone: currentPhone, id_murid: idMurid }) || [];
-      renderTabelJurnal(jurnalList);
-    } catch (e) {
-      statusMsg('Gagal muat jurnal: ' + e.message, 'error');
-    }
-  }
+        function renderTabelProgram() {
+            const tbody = document.getElementById('tabel-program-body');
+            if(dataProgram.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400 italic">Belum ada program kerja. Klik "Tambah Program" untuk memulai.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = '';
+            dataProgram.forEach((p, i) => {
+                let statusClass = p.status === 'Selesai' ? 'bg-emerald-100 text-emerald-700' : (p.status === 'Sedang Berjalan' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600');
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 text-center text-slate-500">${i+1}</td>
+                        <td class="px-6 py-4 text-slate-800 font-medium whitespace-normal min-w-[200px]">${p.nama}</td>
+                        <td class="px-6 py-4 text-slate-600 whitespace-normal min-w-[200px]">${p.tujuan}</td>
+                        <td class="px-6 py-4 text-slate-600">${p.waktu}</td>
+                        <td class="px-6 py-4"><span class="px-2.5 py-1 rounded-full text-xs font-medium ${statusClass}">${p.status}</span></td>
+                        <td class="px-6 py-4 text-center">
+                            <button onclick="hapusProgram(${i})" class="text-rose-500 hover:text-rose-700 bg-rose-50 p-2 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            lucide.createIcons();
+        }
 
-  function renderTabelJurnal(jurnalList) {
-    let tbody = document.querySelector('#tabelJurnal tbody');
-    tbody.innerHTML = '';
-    jurnalList.forEach((j, i) => {
-      tbody.innerHTML += `<tr>
-        <td>${j.tanggal || ''}</td>
-        <td>${j.jenis || ''}</td>
-        <td>${j.topik || ''}</td>
-        <td>
-          <button onclick="editJurnal('${j.id_jurnal}')">✏️ Edit</button>
-        </td>
-      </tr>`;
-    });
-  }
+        function hapusProgram(index) {
+            if(confirm('Apakah Anda yakin ingin menghapus program ini?')) {
+                dataProgram.splice(index, 1);
+                renderTabelProgram();
+                triggerToast("Program berhasil dihapus!");
+            }
+        }
 
-  function resetFormJurnal() {
-    document.getElementById('formJurnal').reset();
-    document.getElementById('jurnal_id').value = '';
-    document.getElementById('hapusJurnalBtn').style.display = 'none';
-  }
+        // ==========================
+        // DATA MURID LOGIC
+        // ==========================
+        function handleTambahMurid(event) {
+            event.preventDefault();
+            const form = event.target;
+            const newMurid = {
+                id: Date.now().toString(),
+                nama: form.NamaLengkap.value,
+                jk: form.JK.value,
+                nis: form.NIS.value,
+                nisn: form.NISN.value,
+                kelas: form.Kelas.value,
+                tahunMasuk: form.TahunMasuk.value,
+                profil: {}
+            };
+            
+            dataMurid.push(newMurid);
+            form.reset();
+            document.getElementById('modal-tambah-murid').classList.add('hidden');
+            renderTabelMurid();
+            updateDropdownMurid();
+            triggerToast("Data murid berhasil ditambahkan!");
+        }
 
-  async function editJurnal(idJurnal) {
-    // Muat detail jurnal dari API (perlu fungsi getJurnal)
-    try {
-      const j = await apiGet('getJurnal', { phone: currentPhone, id_jurnal: idJurnal });
-      if (j) {
-        document.getElementById('jurnal_id').value = j.id_jurnal;
-        document.getElementById('jurnal_tanggal').value = j.tanggal;
-        document.getElementById('jurnal_jenis').value = j.jenis;
-        document.getElementById('jurnal_topik').value = j.topik;
-        document.getElementById('jurnal_catatan').value = j.catatan;
-        document.getElementById('jurnal_tindak').value = j.tindak_lanjut;
-        document.getElementById('hapusJurnalBtn').style.display = 'inline-block';
-      }
-    } catch (e) {
-      statusMsg('Gagal muat jurnal: ' + e.message, 'error');
-    }
-  }
+        function renderTabelMurid() {
+            const tbody = document.getElementById('tabel-murid-body');
+            if(dataMurid.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-slate-400 italic">Belum ada data murid. Klik "Tambah Murid" untuk memulai.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = '';
+            dataMurid.forEach((m, i) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 text-center text-slate-500">${i+1}</td>
+                        <td class="px-6 py-4 text-slate-800 font-medium">${m.nama}</td>
+                        <td class="px-6 py-4"><span class="px-2 py-1 bg-slate-100 rounded text-xs text-slate-600">${m.jk}</span></td>
+                        <td class="px-6 py-4">${m.nis}</td>
+                        <td class="px-6 py-4">${m.nisn || '-'}</td>
+                        <td class="px-6 py-4">${m.kelas}</td>
+                        <td class="px-6 py-4">${m.tahunMasuk}</td>
+                        <td class="px-6 py-4 text-center">
+                            <button onclick="hapusMurid(${i})" class="text-rose-500 hover:text-rose-700 bg-rose-50 p-2 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            lucide.createIcons();
+        }
 
-  async function simpanJurnal() {
-    const idMurid = document.getElementById('pilihMuridJurnal').value;
-    if (!idMurid) return alert('Pilih murid terlebih dahulu');
-    const idJurnal = document.getElementById('jurnal_id').value || 'jurnal_' + Date.now();
-    const data = {
-      id_jurnal: idJurnal,
-      id_murid: idMurid,
-      tanggal: document.getElementById('jurnal_tanggal').value,
-      jenis: document.getElementById('jurnal_jenis').value,
-      topik: document.getElementById('jurnal_topik').value,
-      catatan: document.getElementById('jurnal_catatan').value,
-      tindak_lanjut: document.getElementById('jurnal_tindak').value
-    };
-    try {
-      await apiPost('saveJurnal', data);
-      statusMsg('Jurnal tersimpan');
-      muatJurnal();
-      resetFormJurnal();
-    } catch (e) {
-      statusMsg('Gagal: ' + e.message, 'error');
-    }
-  }
+        function hapusMurid(index) {
+            if(confirm('Apakah Anda yakin ingin menghapus data murid ini? Data profil dan jurnalnya juga akan terhapus.')) {
+                dataMurid.splice(index, 1);
+                renderTabelMurid();
+                updateDropdownMurid();
+                triggerToast("Data murid berhasil dihapus!");
+            }
+        }
 
-  async function hapusJurnal() {
-    const idJurnal = document.getElementById('jurnal_id').value;
-    if (!idJurnal || !confirm('Hapus jurnal ini?')) return;
-    try {
-      await apiPost('hapusJurnal', { id_jurnal: idJurnal });
-      statusMsg('Jurnal dihapus');
-      muatJurnal();
-      resetFormJurnal();
-    } catch (e) {
-      statusMsg('Gagal: ' + e.message, 'error');
-    }
-  }
+        // ==========================
+        // PROFIL MURID LOGIC
+        // ==========================
+        function loadProfilMurid(index) {
+            updateProfilReadonly(); 
+            if(index === "") {
+                document.getElementById('prof-nis').value = "";
+                document.getElementById('prof-tahun-masuk').value = "";
+                document.getElementById('form-profil-lengkap').reset();
+                return;
+            }
+            
+            const murid = dataMurid[index];
+            document.getElementById('prof-select-murid').value = index;
+            document.getElementById('prof-nis').value = murid.nis + (murid.nisn ? ' / ' + murid.nisn : '');
+            document.getElementById('prof-tahun-masuk').value = murid.tahunMasuk || '-';
+            
+            const p = murid.profil || {};
+            const fields = ['alamat', 'hobi', 'ayah', 'ibu', 'telp', 'mapel_kuat', 'mapel_lemah', 'prestasi', 'cara_belajar', 'kondisi_khusus', 'harapan_murid', 'harapan_dukungan', 'catatan_guru'];
+            fields.forEach(f => {
+                document.getElementById('prof-' + f).value = p[f] || "";
+            });
+        }
 
-  // ================== LAPORAN ==================
-  async function muatLaporan() {
-    const idMurid = document.getElementById('pilihMuridLaporan').value;
-    const periode = document.getElementById('laporan_periode').value;
-    if (!idMurid || !periode) return;
-    try {
-      const laporan = await apiGet('getLaporan', { phone: currentPhone, id_murid: idMurid, periode: periode });
-      if (laporan) {
-        document.querySelector('#formLaporan [name="akademik"]').value = laporan.akademik || '';
-        document.querySelector('#formLaporan [name="kompetensi"]').value = laporan.kompetensi || '';
-        document.querySelector('#formLaporan [name="karakter"]').value = laporan.karakter || '';
-        document.querySelector('#formLaporan [name="kesimpulan"]').value = laporan.kesimpulan || '';
-      } else {
-        document.querySelector('#formLaporan [name="akademik"]').value = '';
-        document.querySelector('#formLaporan [name="kompetensi"]').value = '';
-        document.querySelector('#formLaporan [name="karakter"]').value = '';
-        document.querySelector('#formLaporan [name="kesimpulan"]').value = '';
-      }
-    } catch (e) {
-      statusMsg('Gagal muat laporan: ' + e.message, 'error');
-    }
-  }
+        function simpanProfilMurid() {
+            const index = document.getElementById('prof-select-murid').value;
+            if(index === "") {
+                alert("Silakan pilih murid terlebih dahulu!");
+                return;
+            }
+            
+            const fields = ['alamat', 'hobi', 'ayah', 'ibu', 'telp', 'mapel_kuat', 'mapel_lemah', 'prestasi', 'cara_belajar', 'kondisi_khusus', 'harapan_murid', 'harapan_dukungan', 'catatan_guru'];
+            const profilData = {};
+            fields.forEach(f => {
+                profilData[f] = document.getElementById('prof-' + f).value;
+            });
+            
+            dataMurid[index].profil = profilData;
+            triggerToast("Data profil berhasil disimpan!");
+        }
 
-  async function simpanLaporan() {
-    const idMurid = document.getElementById('pilihMuridLaporan').value;
-    const periode = document.getElementById('laporan_periode').value;
-    if (!idMurid || !periode) return alert('Pilih murid dan isi periode');
-    const data = {
-      id_murid: idMurid,
-      periode: periode,
-      akademik: document.querySelector('#formLaporan [name="akademik"]').value,
-      kompetensi: document.querySelector('#formLaporan [name="kompetensi"]').value,
-      karakter: document.querySelector('#formLaporan [name="karakter"]').value,
-      kesimpulan: document.querySelector('#formLaporan [name="kesimpulan"]').value
-    };
-    try {
-      await apiPost('saveLaporan', data);
-      statusMsg('Laporan tersimpan');
-    } catch (e) {
-      statusMsg('Gagal: ' + e.message, 'error');
-    }
-  }
+        // ==========================
+        // JURNAL LOGIC
+        // ==========================
+        function updateDropdownMurid() {
+            const profSelect = document.getElementById('prof-select-murid');
+            const jurSelect = document.getElementById('jur-select-murid');
+            const profVal = profSelect.value;
+            
+            let options = '<option value="">-- Pilih Murid --</option>';
+            dataMurid.forEach((m, i) => {
+                options += `<option value="${i}">${m.nama} (NIS: ${m.nis})</option>`;
+            });
+            
+            profSelect.innerHTML = options;
+            jurSelect.innerHTML = options;
+            
+            if(profVal && dataMurid[profVal]) profSelect.value = profVal;
+        }
 
-  // ================== RENCANA ==================
-  async function muatRencana() {
-    const idMurid = document.getElementById('pilihMuridRencana').value;
-    const periode = document.getElementById('rencana_periode').value;
-    if (!idMurid || !periode) return;
-    try {
-      const rencana = await apiGet('getRencana', { phone: currentPhone, id_murid: idMurid, periode: periode });
-      if (rencana) {
-        document.querySelector('#formRencana [name="target_akademik"]').value = rencana.target_akademik || '';
-        document.querySelector('#formRencana [name="target_bakat"]').value = rencana.target_bakat || '';
-        document.querySelector('#formRencana [name="target_keterampilan"]').value = rencana.target_keterampilan || '';
-        document.querySelector('#formRencana [name="target_karakter"]').value = rencana.target_karakter || '';
-      } else {
-        document.querySelector('#formRencana [name="target_akademik"]').value = '';
-        document.querySelector('#formRencana [name="target_bakat"]').value = '';
-        document.querySelector('#formRencana [name="target_keterampilan"]').value = '';
-        document.querySelector('#formRencana [name="target_karakter"]').value = '';
-      }
-    } catch (e) {
-      statusMsg('Gagal muat rencana: ' + e.message, 'error');
-    }
-  }
+        function handleSimpanJurnal(event) {
+            event.preventDefault();
+            const form = event.target;
+            const muridIndex = form['jur-select-murid'].value;
+            
+            let topiks = [];
+            document.querySelectorAll('input[name="jur_topik"]:checked').forEach(cb => topiks.push(cb.value));
 
-  async function simpanRencana() {
-    const idMurid = document.getElementById('pilihMuridRencana').value;
-    const periode = document.getElementById('rencana_periode').value;
-    if (!idMurid || !periode) return alert('Pilih murid dan isi periode');
-    const data = {
-      id_murid: idMurid,
-      periode: periode,
-      target_akademik: document.querySelector('#formRencana [name="target_akademik"]').value,
-      target_bakat: document.querySelector('#formRencana [name="target_bakat"]').value,
-      target_keterampilan: document.querySelector('#formRencana [name="target_keterampilan"]').value,
-      target_karakter: document.querySelector('#formRencana [name="target_karakter"]').value
-    };
-    try {
-      await apiPost('saveRencana', data);
-      statusMsg('Rencana tersimpan');
-    } catch (e) {
-      statusMsg('Gagal: ' + e.message, 'error');
-    }
-  }
+            const newJurnal = {
+                id: Date.now().toString(),
+                muridNama: dataMurid[muridIndex].nama,
+                tanggal: form['jur-tanggal'].value,
+                jenis: form['jur_jenis'].value,
+                topik: topiks.join(", "),
+                catatan: form['jur-catatan'].value,
+                tindakLanjut: form['jur-tindaklanjut'].value
+            };
 
-</script>
+            dataJurnal.unshift(newJurnal);
+            form.reset();
+            renderJurnal();
+            triggerToast("Jurnal berhasil dicatat!");
+        }
+
+        function renderJurnal() {
+            const list = document.getElementById('list-jurnal');
+            if(dataJurnal.length === 0) {
+                list.innerHTML = '<div class="text-center text-slate-400 italic text-sm py-4">Belum ada jurnal yang disimpan.</div>';
+                return;
+            }
+            
+            list.innerHTML = '';
+            dataJurnal.forEach(j => {
+                const dateObj = new Date(j.tanggal);
+                const dateStr = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                
+                list.innerHTML += `
+                    <div class="p-4 border border-slate-100 rounded-lg bg-slate-50 relative group">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h4 class="font-bold text-slate-800">${j.muridNama}</h4>
+                                <p class="text-xs text-slate-500">${dateStr} &bull; ${j.jenis}</p>
+                            </div>
+                            <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded font-medium">${j.topik || 'Umum'}</span>
+                        </div>
+                        <p class="text-sm text-slate-700 mt-2"><span class="font-medium">Catatan:</span> ${j.catatan}</p>
+                        ${j.tindakLanjut ? `<p class="text-sm text-slate-600 mt-1 italic"><span class="font-medium">Tindak Lanjut:</span> ${j.tindakLanjut}</p>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        // ==========================
+        // UTILS
+        // ==========================
+        function triggerToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            clearTimeout(toastTimeout);
+            
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
